@@ -1,0 +1,7 @@
+name: 'Islandora HLS'
+type: module
+description: 'Create streaming audio and video derivatives'
+package: Islandora
+core_version_requirement: ^10 || ^11
+dependencies:
+  - islandora:islandora

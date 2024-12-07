@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Islandora HLS module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\file\Entity\File;
+use Drupal\file\FileInterface;
+use Drupal\media\Entity\Media;
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function islandora_hls_media_presave(EntityInterface $media) {
+  // if an HLS tar was created
+  if ($media->bundle() == 'file' &&
+    $media->label() == 'hls.tar.gz' &&
+    !$media->field_media_file->isEmpty()) {
+    $file_entity = $media->get('field_media_file')->entity;
+    if ($file_entity instanceof FileInterface) {
+      $media->set('status', 0);
+
+      // make sure we can get the original file this service file was created for
+      $utils = \Drupal::service('islandora.utils');
+      $of = $utils->getTermForUri("http://pcdm.org/use#OriginalFile");
+      if (empty($of)) {
+        \Drupal::logger('islandora_hsl')->warning("Unable to find original file term for node {nid}", ['nid' => $nid]);
+        return;
+      }
+      $originalFileMedia = $utils->getMediaWithTerm($media->field_media_of->entity, $of);
+      $nid = $media->field_media_of->target_id;
+      if (empty($originalFileMedia)) {
+        \Drupal::logger('islandora_hsl')->warning("Unable to find original file for node {nid}", ['nid' => $nid]);
+        return;
+      }
+
+      if (!in_array($originalFileMedia->bundle(), ['audio', 'video'])) {
+        \Drupal::logger('islandora_hsl')->warning("Attempting to create HLS service file for media other than audio or video for node ID {nid}", ['nid' => $nid]);
+        return;
+      }
+
+      $fs = \Drupal::service('file_system');
+      $file_uri = $file_entity->getFileUri();
+      $file_path = $fs->realpath($file_uri);
+      $hlsUri = dirname($file_uri);
+      $hlsUri .= '/' . $nid . '.m3u8';
+
+      // extract the HLS file
+      if (file_exists($file_path) && !file_exists($fs->realpath($hlsUri))) {
+        $file_directory = dirname($file_path);
+        $command = sprintf('tar -zxf %s -C %s', escapeshellarg($file_path), escapeshellarg($file_directory));
+        exec($command, $output, $return_var);
+
+        // and save a new service file
+        $file = File::create([
+          'filename' => "$nid - HLS",
+          'uri' => $hlsUri,
+          'status' => 1,
+        ]);
+        $file->save();
+
+        $fieldName = 'field_media_' . $originalFileMedia->bundle() . '_file';
+        $hlsMedia = Media::create([
+          'name' => "$nid - HLS",
+          'bundle' => $originalFileMedia->bundle(),
+          $fieldName => $file->id(),
+          'field_media_of' => $nid,
+          'field_media_use' => $media->field_media_use->target_id,
+          'status' => $originalFileMedia->status->value,
+        ]);
+        $hlsMedia->save();
+      }
+    }
+  }
+}
