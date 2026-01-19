@@ -1,0 +1,32 @@
+name: lint-test
+
+on:
+  push:
+    branches:
+      - "**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-test:
+    name: lint+test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["8.3"]
+        drupal-version: ["10.5", "10.6", "11.2", "11.3"]
+    steps:
+    - uses: 'actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8' # v6
+
+    - name: lint+test
+      working-directory: tests
+      run: |
+        export MODULE_DIRECTORY=$(pwd | xargs dirname)
+        docker compose up --quiet-pull --abort-on-container-exit
+      env:
+        DRUPAL_VERSION: ${{ matrix.drupal-version }}
+        PHP_VERSION: ${{ matrix.php-version }}
+        ENABLE_MODULES: islandora_hls
+

@@ -1,0 +1,20 @@
+{
+  "name": "drupal/islandora_hls",
+  "description": "Play streaming audio and video derivatives",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/islandora_hls",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/islandora_hls"
+  },
+  "authors": [
+    {
+      "name": "Joe Corall",
+      "email": "jjc223@lehigh.edu",
+      "role": "Owner"
+    }
+  ],
+  "require": {
+    "drupal/islandora": "^2"
+  }
+}

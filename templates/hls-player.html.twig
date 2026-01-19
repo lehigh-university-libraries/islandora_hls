@@ -1,0 +1,40 @@
+{#
+/**
+ * @file
+ * Template for HLS player.
+ *
+ * Available variables:
+ * - url: The URL of the HLS manifest file.
+ * - media_type: The type of media ('video' or 'audio').
+ * - width: The width of the player.
+ * - height: The height of the player.
+ * - controls: Whether to show player controls.
+ * - autoplay: Whether to autoplay the media.
+ * - muted: Whether the media should be muted.
+ * - loop: Whether the media should loop.
+ */
+#}
+{% if media_type == 'audio' %}
+  <audio
+    data-hls-url="{{ url }}"
+    {% if controls %}controls{% endif %}
+    {% if autoplay %}autoplay{% endif %}
+    {% if muted %}muted{% endif %}
+    {% if loop %}loop{% endif %}
+    playsinline
+  >
+    Your browser does not support the audio element.
+  </audio>
+{% else %}
+  <video
+    data-hls-url="{{ url }}"
+    style="width: {{ width }}; height: {{ height }};"
+    {% if controls %}controls{% endif %}
+    {% if autoplay %}autoplay{% endif %}
+    {% if muted %}muted{% endif %}
+    {% if loop %}loop{% endif %}
+    playsinline
+  >
+    Your browser does not support the video element.
+  </video>
+{% endif %}
