@@ -2,11 +2,11 @@
 
 namespace Drupal\islandora_hls\Service;
 
-use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileInterface;
+use Drupal\file\FileRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -36,11 +36,11 @@ class HlsManager {
   protected FileSystemInterface $fileSystem;
 
   /**
-   * The database connection.
+   * The file repository.
    *
-   * @var \Drupal\Core\Database\Connection
+   * @var \Drupal\file\FileRepositoryInterface
    */
-  protected Connection $database;
+  protected FileRepositoryInterface $fileRepository;
 
   /**
    * HlsManager constructor.
@@ -51,14 +51,14 @@ class HlsManager {
    *   The logger.
    * @param \Drupal\Core\File\FileSystemInterface $file_system
    *   The file system.
-   * @param \Drupal\Core\Database\Connection $database
-   *   The database connection.
+   * @param \Drupal\file\FileRepositoryInterface $file_repository
+   *   The file repository.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, LoggerInterface $logger, FileSystemInterface $file_system, Connection $database) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, LoggerInterface $logger, FileSystemInterface $file_system, FileRepositoryInterface $file_repository) {
     $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger;
     $this->fileSystem = $file_system;
-    $this->database = $database;
+    $this->fileRepository = $file_repository;
   }
 
   /**
@@ -208,17 +208,12 @@ class HlsManager {
    *   The file entity, or NULL if not found.
    */
   protected function getFileByFilename(string $filename): ?FileInterface {
-    $fid = $this->database->query(
-      "SELECT fid FROM {file_managed} WHERE uri LIKE :pattern",
-      [':pattern' => '%/' . $this->database->escapeLike($filename)]
-    )->fetchField();
-
-    if (!$fid) {
+    $files = $this->fileRepository->loadByProperties(['filename' => $filename]);
+    if (empty($files)) {
       return NULL;
     }
 
-    $file = $this->entityTypeManager->getStorage('file')->load($fid);
-    return $file instanceof FileInterface ? $file : NULL;
+    return reset($files);
   }
 
   /**

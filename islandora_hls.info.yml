@@ -5,3 +5,4 @@ package: Islandora
 core_version_requirement: ^10.3 || ^11
 dependencies:
   - islandora:islandora
+  - islandora:islandora_core_feature

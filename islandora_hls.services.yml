@@ -12,6 +12,7 @@ services:
       - '@logger.channel.islandora_hls'
       - '@file_system'
       - '@database'
+      - '@file.repository'
 
   logger.channel.islandora_hls:
     parent: logger.channel_base
