@@ -1,0 +1,9 @@
+video[data-hls-url],
+audio[data-hls-url] {
+  display: block;
+  max-width: 100%;
+}
+
+audio[data-hls-url] {
+  width: 100%;
+}

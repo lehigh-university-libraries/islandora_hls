@@ -1,0 +1,21 @@
+hls:
+  version: 1.6.15
+  remote: https://github.com/video-dev/hls.js
+  license:
+    name: Apache-2.0
+    url: https://github.com/video-dev/hls.js/blob/master/LICENSE
+    gpl-compatible: true
+  js:
+    https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js: { type: external, minified: true }
+
+hls_player:
+  version: 1.0.0
+  js:
+    js/hls-player.js: {}
+  css:
+    component:
+      css/hls-player.css: {}
+  dependencies:
+    - islandora_hls/hls
+    - core/drupal
+    - core/once

@@ -1,0 +1,23 @@
+uuid: 63cafe1c-4eba-416c-ae05-0f5d48d077a8
+langcode: en
+status: true
+dependencies:
+  module:
+    - file
+    - media
+id: media.field_hls_assets
+field_name: field_hls_assets
+entity_type: media
+type: file
+settings:
+  target_type: file
+  display_field: false
+  display_default: false
+  uri_scheme: public
+module: file
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

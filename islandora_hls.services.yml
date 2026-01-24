@@ -1,0 +1,19 @@
+services:
+  Drupal\islandora_hls\Hook\MediaHooks:
+    arguments:
+      - '@islandora_hls.hls_manager'
+    tags:
+      - { name: hook }
+
+  islandora_hls.hls_manager:
+    class: Drupal\islandora_hls\Service\HlsManager
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.channel.islandora_hls'
+      - '@file_system'
+      - '@database'
+      - '@file.repository'
+
+  logger.channel.islandora_hls:
+    parent: logger.channel_base
+    arguments: ['islandora_hls']
